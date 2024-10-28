@@ -2,15 +2,17 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
 const Chat = ({ route, navigation }) => {
-  const { name, backgroundColor } = route.params; // Receive name and background color from navigation params
+  // Destructure the parameters from the route object
+  const { name, backgroundColor } = route.params;
 
+  // useEffect hook to set the navigation title when the component mounts or when 'name' changes
   useEffect(() => {
-    navigation.setOptions({ title: name }); // Set the navigation title to the user's name
-  }, [name, navigation]);
+    navigation.setOptions({ title: name }); // Update the navigation title to the user's name
+  }, [name, navigation]); // Dependencies array to re-run effect when 'name' or 'navigation' changes
 
   return (
-    <View style={[styles.container, { backgroundColor: backgroundColor }]}> {/* Apply the chosen background color */}
-      <Text style={styles.text}>Hello {name}!</Text> {/* Ensure name is within a Text component */}
+    <View style={[styles.container, { backgroundColor: backgroundColor }]}>
+      <Text style={styles.text}>Hello {name}!</Text>
     </View>
   );
 };

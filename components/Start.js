@@ -11,46 +11,46 @@ const Start = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/background-image.png')} // Replace with your image in the assets folder
+      source={require('../assets/background-image.png')}
       style={styles.backgroundImage}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        {/* App title positioned lower */}
+        
         <Text style={styles.title}>ChatApp</Text>
 
-        {/* White box containing input, color selection, and button */}
+        
         <View style={styles.box}>
-          {/* User name input field with icon */}
+          
           <View style={styles.inputContainer}>
             <Ionicons name="person-outline" size={20} color="#757083" style={styles.icon} />
             <TextInput
               style={styles.textInput}
               value={name}
-              onChangeText={setName} // Update name state on text change
-              placeholder="Your name" // Placeholder text
+              onChangeText={setName} 
+              placeholder="Your name" 
               placeholderTextColor="#757083"
             />
           </View>
 
-          {/* Background color selection */}
+          
           <Text style={styles.colorLabel}>Choose background color:</Text>
           <View style={styles.colorOptionsContainer}>
             {['#090C08', '#474056', '#8A95A5', '#B9C6AE'].map((color) => (
               <TouchableOpacity
                 key={color}
                 style={[styles.colorOption, { backgroundColor: color }]}
-                onPress={() => setBackgroundColor(color)} // Sets the selected background color
+                onPress={() => setBackgroundColor(color)} 
               />
             ))}
           </View>
 
-          {/* Button to start the chat */}
+          
           <TouchableOpacity
             style={[styles.button, { backgroundColor: '#757083' }]}
-            onPress={() => navigation.navigate('Chat', { name: name, backgroundColor: backgroundColor })} // Pass name and background color to Chat
+            onPress={() => navigation.navigate('Chat', { name: name, backgroundColor: backgroundColor })} 
           >
             <Text style={styles.buttonText}>Start Chatting</Text>
           </TouchableOpacity>
