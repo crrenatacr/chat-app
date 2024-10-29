@@ -3,8 +3,10 @@ import { GiftedChat } from "react-native-gifted-chat";
 import { StyleSheet, View, Text } from 'react-native';
 
 const Chat = ({ route, navigation }) => {
+  // State to hold chat messages
   const [messages, setMessages] = useState([]);
 
+  // Initialize with a default message on component mount
   useEffect(() => {
     setMessages([
       {
@@ -20,12 +22,15 @@ const Chat = ({ route, navigation }) => {
     ]);
   }, []);
 
+  // Destructure params from the route
   const { name, backgroundColor } = route.params;
 
+  // Set the navigation title to the user's name
   useEffect(() => {
     navigation.setOptions({ title: name });
   }, [name, navigation]);
 
+  // Function to handle sending new messages
   const onSend = (newMessages) => {
     setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages));
   };
@@ -35,9 +40,10 @@ const Chat = ({ route, navigation }) => {
       <Text style={styles.text}>Hello {name}!</Text>
       <GiftedChat 
         messages={messages} 
-        onSend={onSend} 
+        onSend={messages => onSend(messages)} 
         user={{ _id: 1 }}
       />
+      
     </View>
   );
 };
@@ -45,8 +51,6 @@ const Chat = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   text: {
     fontSize: 24,
