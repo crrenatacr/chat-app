@@ -62,7 +62,15 @@ const Chat = ({ route, navigation }) => {
         onSend={messages => onSend(messages)} 
         user={{ _id: 1 }}
       />
-    </View>
+      {/*Fix keyboard hides the message input field on Android*/}
+      {Platform.OS === "android" ? (
+          <KeyboardAvoidingView behavior="height" />
+      ) : null }  
+      {/*Fix keyboard hides the message input field on iOS*/}
+      {Platform.OS === "ios" ? (
+          <KeyboardAvoidingView behavior="padding" />
+      ) : null }  
+          </View>
   );
 };
 
