@@ -1,16 +1,16 @@
-import { initializeApp } from "firebase/app";
+import { NavigationContainer } from '@react-navigation/native'; // import react Navigation
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { initializeApp } from "firebase/app"; // import FireBase
 import { getFirestore } from "firebase/firestore";
-import { getAuth, signInAnonymously } from 'firebase/auth';
-import { useEffect } from 'react';
+import { getStorage } from 'firebase/storage';
 import Start from './components/Start';
 import Chat from './components/Chat';
 
-// import react Navigation
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 
 // Your web app's Firebase configuration
-
+const App = () => {
 const firebaseConfig = {
   apiKey: "AIzaSyBDN4n6T-VFTHZwbpdvR_nqgAUx86LJ19o",
   authDomain: "chat-app-99ffd.firebaseapp.com",
@@ -21,14 +21,15 @@ const firebaseConfig = {
 };
 
 
+
 // Initialize Firebase
 
 const app = initializeApp(firebaseConfig);
-
+const db = getFirestore(app);
+const storage = getStorage(app);
 // Create the navigator
 const Stack = createNativeStackNavigator();
 
-const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -38,13 +39,16 @@ const App = () => {
           name="Start"
           component={Start}
         />
-        <Stack.Screen
-          name="Chat"
-          component={Chat}
-        />
+        <Stack.Screen 
+        name="Chat" 
+        >
+
+        {props => <Chat db={db} {...props} />}
+      </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
 
 export default App;

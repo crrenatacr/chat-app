@@ -1,12 +1,25 @@
 import { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const { height } = Dimensions.get('window');
 
 const Start = ({ navigation }) => {
   const [name, setName] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
+
+  const auth = getAuth();
+  const signInUser = () => {
+      signInAnonymously(auth).then(res => {
+          navigation.navigate("Chat", {userID: res.user.uid, name: name, backgroundColor: backgroundColor});
+          Alert.alert("Signed in Successfully");
+      }).catch(err => {
+          Alert.alert("Unable to sign in, try later again");
+      })
+  }
+
+
 
   return (
     <ImageBackground
@@ -47,15 +60,22 @@ const Start = ({ navigation }) => {
           </View>
 
           <TouchableOpacity
-            accessible={true}
-            accessibilityLabel="Start chatting"
-            accessibilityHint="Navigates to the chat screen with the selected background color"
-            accessibilityRole="button"
-            style={[styles.button, { backgroundColor: '#757083' }]}
-            onPress={() => navigation.navigate('Chat', { name: name, backgroundColor: backgroundColor })}
-          >
-            <Text style={styles.buttonText}>Start Chatting</Text>
-          </TouchableOpacity>
+  accessible={true}
+  accessibilityLabel="Start chatting"
+  accessibilityHint="Navigates to the chat screen with the selected background color"
+  accessibilityRole="button"
+  style={[styles.button, { backgroundColor: '#757083' }]} // Manter o background color do primeiro snippet
+  onPress={() => {
+    if (name == '') {
+      Alert.alert('You need a username');
+    } else {
+      signInUser(); // Chamando a função de sign-in
+      navigation.navigate('Chat', { name: name, backgroundColor: backgroundColor }); // Navegação para o chat
+    }
+  }}
+>
+  <Text style={styles.buttonText}>Start Chatting</Text>
+</TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </ImageBackground>
