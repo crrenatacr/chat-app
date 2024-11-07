@@ -19,9 +19,7 @@ const Start = ({ navigation }) => {
       })
   }
 
-
-
-  return (
+  return (    
     <ImageBackground
       source={require('../assets/background-image.png')}
       style={styles.backgroundImage}
