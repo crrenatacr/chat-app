@@ -2,13 +2,19 @@ import { useState, useEffect } from "react";
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import { StyleSheet, View, Text, KeyboardAvoidingView, Platform } from 'react-native'; 
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
-import { AsyncStorage } from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 
-const Chat = ({ route, db, navigation, isConnected }) => {
+
+const Chat = ({ route, db, navigation, isConnected, storage }) => {
   const [messages, setMessages] = useState([]);
   const collectionName = "messages";
 
+
   const { name, userID, backgroundColor } = route.params;
+
+  
 
   const onSend = (newMessages) => {
     const message = newMessages[0];
@@ -51,6 +57,31 @@ const Chat = ({ route, db, navigation, isConnected }) => {
     else return null;
   };
 
+  const renderCustomActions = (props) => {
+    return <CustomActions storage={storage} onSend={onSend} {...props} />;
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage} = props;
+    if (currentMessage.location) {
+      return (
+          <MapView
+            style={{width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3}}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+      );
+    }
+    return null;
+  }
+
   useEffect(() => {
     navigation.setOptions({ title: name });
   }, [name, navigation]);
@@ -70,6 +101,7 @@ const Chat = ({ route, db, navigation, isConnected }) => {
               _id: data.user._id,
               name: data.user.name,
               avatar: data.user.avatar || null,
+              image: data.image || null,
             },
             system: data.system || false,
           };
@@ -88,44 +120,51 @@ const Chat = ({ route, db, navigation, isConnected }) => {
 
   const cacheMessages = async (messagesToCache) => {
     try {
-      await AsyncStorage.setItem(
-        "messages",
-        JSON.stringify(messagesToCache)
-      );
+      await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
     } catch (error) {
       console.log(error.message);
     }
-  };
+  }
   //Function called when isConnected prop is false in useEffect()
   const loadCachedMessages = async () => {
     const cachedMessages = (await AsyncStorage.getItem("messages")) || [];
     setMessages(JSON.parse(cachedMessages));
   };
 
-    return (
+  return (
     <View style={[styles.container, { backgroundColor: backgroundColor }]}>
       <Text style={styles.text}>Hello {name}!</Text>
       <GiftedChat 
         messages={messages}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
+        renderActions={renderCustomActions}
         onSend={messages => onSend(messages)}
-        user={{ _id: userID, name: name }} // Uses userID here as well
+        renderCustomView={renderCustomView}
+        user={{ _id: userID, name }} 
       />
       {Platform.OS === "android" ? <KeyboardAvoidingView behavior="height" /> : null}
       {Platform.OS === "ios" ? <KeyboardAvoidingView behavior="padding" /> : null}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  logoutButton: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    backgroundColor: "#C00",
+    padding: 10,
+    zIndex: 1
   },
+  logoutButtonText: {
+    color: "#FFF",
+    fontSize: 10
+  }
 });
 
 export default Chat;
