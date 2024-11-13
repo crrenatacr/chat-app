@@ -21,7 +21,7 @@ const Chat = ({ route, db, navigation, isConnected, storage }) => {
     console.log("User data:", { userID, name });
     if (userID && name) {
       addDoc(collection(db, collectionName), {
-        _id: message._id || Math.floor(Math.random() * 1000000), // Generate ID if it doesn't exist
+        _id: message._id || Math.floor(Math.random() * 1000000), // Generate ID if it doesnt exist
         text: message.text,
         createdAt: new Date(),
         user: {
