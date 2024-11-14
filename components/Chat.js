@@ -6,6 +6,7 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import {
   collection,
@@ -17,9 +18,11 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomActions from "./CustomActions";
 import MapView from "react-native-maps";
+import { Audio } from "expo-av";
 
-const Chat = ({ route, db, isConnected, storage }) => {
+const Chat = ({ db, storage, route, navigation, isConnected }) => {
   const [messages, setMessages] = useState([]);
+  let soundObject = null;
   const collectionName = "messages";
 
   const { name, userID, backgroundColor } = route.params;
@@ -59,6 +62,48 @@ const Chat = ({ route, db, isConnected, storage }) => {
     );
   };
 
+  const renderAudioBubble = (props) => {
+    return (
+      <View {...props}>
+        <TouchableOpacity
+          style={{ backgroundColor: "#FF0", borderRadius: 10, margin: 5 }}
+          onPress={async () => {
+            const { sound } = await Audio.Sound.createAsync({
+              uri: props.currentMessage.audio,
+            });
+            await sound.playAsync();
+          }}
+        >
+          <Text style={{ textAlign: "center", color: "black", padding: 5 }}>
+            Play Sound
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderMessageAudio = (props) => {
+    return (
+      <View {...props}>
+        <TouchableOpacity
+          style={{ backgroundColor: "#FF0", borderRadius: 10, margin: 5 }}
+          onPress={async () => {
+            if (soundObject) soundObject.unloadAsync();
+            const { sound } = await Audio.Sound.createAsync({
+              uri: props.currentMessage.audio,
+            });
+            soundObject = sound;
+            await sound.playAsync();
+          }}
+        >
+          <Text style={{ textAlign: "center", color: "black", padding: 5 }}>
+            Play Sound
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   const renderInputToolbar = (props) => {
     if (isConnected) return <InputToolbar {...props} />;
     else return null;
@@ -91,11 +136,12 @@ const Chat = ({ route, db, isConnected, storage }) => {
     return null;
   };
 
-  // Insira renderAvatar aqui
   const renderAvatar = (props) => {
     return (
       <View style={styles.avatarContainer}>
-        <Text style={styles.avatarText}>{props.currentMessage.user.name[0]}</Text>
+        <Text style={styles.avatarText}>
+          {props.currentMessage.user.name[0]}
+        </Text>
       </View>
     );
   };
@@ -134,18 +180,23 @@ const Chat = ({ route, db, isConnected, storage }) => {
   return (
     <View style={[styles.container, { backgroundColor: backgroundColor }]}>
       <Text style={styles.text}>Hello {name}!</Text>
-      <GiftedChat 
+      <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
-        renderAvatar={renderAvatar} // Passa renderAvatar para personalizar o avatar
+        renderAvatar={renderAvatar}
         renderInputToolbar={renderInputToolbar}
         renderActions={renderCustomActions}
-        onSend={messages => onSend(messages)}
         renderCustomView={renderCustomView}
-        user={{ _id: userID, name }} 
+        renderMessageAudio={renderAudioBubble}
+        onSend={(messages) => onSend(messages)}
+        user={{ _id: userID, name }}
       />
-      {Platform.OS === "android" ? <KeyboardAvoidingView behavior="height" /> : null}
-      {Platform.OS === "ios" ? <KeyboardAvoidingView behavior="padding" /> : null}
+      {Platform.OS === "android" ? (
+        <KeyboardAvoidingView behavior="height" />
+      ) : null}
+      {Platform.OS === "ios" ? (
+        <KeyboardAvoidingView behavior="padding" />
+      ) : null}
     </View>
   );
 };
@@ -161,12 +212,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#757083",
     justifyContent: "center",
     alignItems: "center",
-    opacity: 0.5, // 50% opacity para o avatar
+    opacity: 0.5,
   },
   avatarText: {
     fontSize: 16,
     fontWeight: "300",
-    color: "#FFFFFF", // cor branca para o texto do avatar
+    color: "#FFFFFF",
   },
   startChatButton: {
     backgroundColor: "#757083",
@@ -180,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "300",
     color: "#757083",
-    opacity: 1, // "Choose background color"
+    opacity: 1,
   },
   mapContainer: {
     width: 150,
