@@ -25,12 +25,7 @@ const CustomActions = ({
 
   // Function to display the action sheet with options
   const onActionPress = () => {
-    const options = [
-      "Choose From Library",
-      "Take Picture",
-      "Send Location",
-      "Cancel",
-    ];
+    const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Record a Sound', 'Cancel'];
     const cancelButtonIndex = options.length - 1;
 
     // Display action sheet and handle option selection
